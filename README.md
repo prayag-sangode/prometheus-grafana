@@ -1,8 +1,4 @@
-Here’s a `README.md` you can use in your `monitoring-manifests` directory for demo and documentation purposes:
 
----
-
-```markdown
 # Kubernetes Monitoring Stack Setup (Prometheus + Grafana + Alertmanager + Node Exporter)
 
 This repository contains Kubernetes manifests to deploy a basic monitoring stack on a MicroK8s cluster. The following components are included:
