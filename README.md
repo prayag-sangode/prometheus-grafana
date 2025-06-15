@@ -93,12 +93,44 @@ Alertmanager is configured to send email alerts via Gmail. Check `alertmanager-c
 
 ---
 
-##  Next Steps
+Here’s a short and clear **README** for installing **Kube-State-Metrics** using Kubernetes manifest files:
 
-* Add Grafana dashboards
-* Import Prometheus as a data source in Grafana
-* Add alert rules
-* Mount persistent volumes (if needed)
+---
+
+## Kube-State-Metrics Installation 
+
+Install Kube-State-Metrics using official Kubernetes manifests via Kustomize:
+
+
+
+1. **Clone the repository**
+
+   ```bash
+   git clone https://github.com/kubernetes/kube-state-metrics
+   cd kube-state-metrics
+   ```
+
+2. **Checkout latest stable release**
+
+   ```bash
+   git checkout v2.15.0
+   ```
+
+3. **Deploy to your cluster**
+
+   ```bash
+   kubectl apply -k examples/standard
+   ```
+
+### 📍 Notes
+
+* Targets the `kube-system` namespace by default.
+* Uses **Kustomize**, so you must use `kubectl apply -k` (not `-f`).
+
+---
+
+Let me know if you want a Markdown version with formatting for GitHub or docs.
+
 
 ---
 
