@@ -1,40 +1,20 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: alertmanager-config
+  name: prometheus-config
   namespace: monitoring
 data:
-  alertmanager.yml: |
+  prometheus.yml: |
     global:
-      resolve_timeout: 5m
-    route:
-      receiver: 'default'
-    receivers:
-      - name: 'default'
-        email_configs:
-          - to: 'you@example.com'
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: alertmanager-config
-  namespace: monitoring
-data:
-  alertmanager.yml: |
-    global:
-      smtp_smarthost: 'smtp.gmail.com:587'
-      smtp_require_tls: true
-      smtp_from: 'Alertmanager <prayag.rhce@gmail.com>'
-      smtp_auth_username: 'prayag.rhce@gmail.com'
-      smtp_auth_password: 'podv mgge kuub gcum'
+      scrape_interval: 15s
 
-    route:
-      receiver: 'email-notice'
-      group_by: ['alertname', 'Service', 'Stage', 'Role']
-      group_wait: 30s
-      group_interval: 5m
-      repeat_interval: 4h
+    rule_files:
+      - /etc/prometheus/alert-rules/*.yml
 
-    receivers:
-      - name: 'email-notice'
-        email_configs:
-          - to: 'prayag.rhce@gmail.com'
+    scrape_configs:
+      - job_name: 'prometheus'
+        static_configs:
+          - targets: ['localhost:9090']
+      - job_name: 'node-exporter'
+        static_configs:
+          - targets: ['node-exporter.monitoring.svc.cluster.local:9100']
