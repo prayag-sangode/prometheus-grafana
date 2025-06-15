@@ -23,7 +23,7 @@ Before deploying this monitoring stack, ensure the following:
 - If using MicroK8s, enable required modules:
 
 ```bash
-microk8s enable dns storage metallb:192.168.1.240-192.168.1.250
+microk8s enable dns storage 
 ````
 
 ---
