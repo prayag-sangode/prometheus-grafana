@@ -103,7 +103,7 @@ If you are not using Ingress or a LoadBalancer:
 
 ---
 
-## ✉ Alertmanager SMTP Setup
+##  Alertmanager SMTP Setup
 
 Email alerts are configured via Gmail SMTP in `alertmanager-configmap.yaml`.
 
