@@ -1,8 +1,4 @@
-Here’s a `README.md` you can use in your `monitoring-manifests` directory for demo and documentation purposes:
 
----
-
-```markdown
 # Kubernetes Monitoring Stack Setup (Prometheus + Grafana + Alertmanager + Node Exporter)
 
 This repository contains Kubernetes manifests to deploy a basic monitoring stack on a MicroK8s cluster. The following components are included:
@@ -16,7 +12,18 @@ This repository contains Kubernetes manifests to deploy a basic monitoring stack
 
 ---
 
-## 📁 Directory Structure
+##  Prerequisites
+
+Before deploying this monitoring stack, ensure the following are set up:
+
+###  Kubernetes Cluster
+
+- A running **Kubernetes cluster** (e.g., [MicroK8s](https://microk8s.io), Minikube, k3s, or cloud-managed K8s)
+- If using MicroK8s, enable these modules:
+  ```bash
+  microk8s enable dns storage
+
+##  Directory Structure
 
 ```
 
@@ -33,7 +40,7 @@ monitoring-manifests/
 
 ---
 
-## 🚀 Installation Steps
+##  Installation Steps
 
 1. **Clone the repo (or move into the directory):**
 
@@ -55,7 +62,7 @@ kubectl apply -f .
 
 ---
 
-## 🌐 Accessing Services via Port Forwarding
+##  Accessing Services via Port Forwarding
 
 Since Ingress or MetalLB is not used, you can expose services using port forwarding:
 
@@ -73,20 +80,20 @@ Since Ingress or MetalLB is not used, you can expose services using port forward
 
 ---
 
-## 🔐 Grafana Login
+##  Grafana Login
 
 * **Username:** `admin`
 * **Password:** `admin` (change after first login)
 
 ---
 
-## 📬 Alertmanager SMTP
+##  Alertmanager SMTP
 
 Alertmanager is configured to send email alerts via Gmail. Check `alertmanager-configmap.yaml` for SMTP settings.
 
 ---
 
-## ✅ Next Steps
+##  Next Steps
 
 * Add Grafana dashboards
 * Import Prometheus as a data source in Grafana
@@ -95,7 +102,7 @@ Alertmanager is configured to send email alerts via Gmail. Check `alertmanager-c
 
 ---
 
-## 🧹 Cleanup
+##  Cleanup
 
 ```bash
 kubectl delete -f .
@@ -103,7 +110,7 @@ kubectl delete -f .
 
 ---
 
-## 🧑‍💻 Author
+## Author
 
 **Prayag Sangode**
 
