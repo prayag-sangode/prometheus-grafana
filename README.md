@@ -133,6 +133,73 @@ Scraped targets (defined in `prometheus-configmap.yaml`):
 You can confirm them at: `Status → Targets` in Prometheus UI.
 
 ---
+Here’s a **section to add to your `README.md`** to document how to add **Prometheus as a data source in Grafana** and how to **import dashboards using Grafana Dashboard IDs**.
+
+---
+
+##  Add Prometheus as a Data Source in Grafana
+
+After Grafana is deployed and accessible (e.g., via port-forward or MetalLB), follow these steps:
+
+### Step 1: Log into Grafana
+
+* Open your browser and go to:
+  [http://localhost:3000](http://localhost:3000) *(or your VM public IP)*
+* Login with default credentials:
+  **Username**: `admin`
+  **Password**: `admin`
+
+>  You may be prompted to change the password after first login.
+
+---
+
+### Step 2: Add Prometheus Data Source
+
+1. From the left sidebar, click **Gear (⚙️)** → **Data Sources**
+
+2. Click **"Add data source"**
+
+3. Choose **Prometheus**
+
+4. Set the URL to:
+
+   ```
+   http://prometheus.monitoring.svc.cluster.local
+   ```
+
+5. Leave other settings default and click **Save & Test**
+
+If successful, you’ll see **“Data source is working”**.
+
+---
+
+## Import Grafana Dashboards
+
+Grafana provides a massive collection of community dashboards. You can import them by ID.
+
+###  Go to Import Page
+
+* Click the **"+"** icon on the left → **"Import"**
+
+###  Use Dashboard IDs
+
+
+| Dashboard Name                | Dashboard ID |
+| ----------------------------- | ------------ |
+| Node Exporter Full            | `1860`       |
+
+### Set Data Source
+
+* After entering a dashboard ID and clicking **"Load"**, select the Prometheus data source you added earlier.
+
+---
+
+### Optional: Persist Dashboards
+
+If you want to automate dashboard provisioning via config files (JSON), you can create a `dashboards/` directory and mount it to Grafana’s container.
+
+---
+
 
 ##  Cleanup
 
