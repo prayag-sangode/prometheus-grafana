@@ -1,5 +1,5 @@
 
-# Kubernetes Monitoring Stack Setup (Prometheus + Grafana + Alertmanager + Node Exporter)
+# Kubernetes Monitoring Stack Setup (Prometheus + Grafana + Alertmanager + Node Exporter + Kube-State-Metrics)
 
 This repository contains Kubernetes manifests to deploy a basic monitoring stack on a MicroK8s cluster. The following components are included:
 
@@ -7,54 +7,70 @@ This repository contains Kubernetes manifests to deploy a basic monitoring stack
 - **Grafana** – Metrics visualization
 - **Alertmanager** – Alerting engine
 - **Node Exporter** – Node-level metrics
-- **ConfigMaps** – Prometheus & Alertmanager configuration
+- **Kube-State-Metrics** – Kubernetes object state metrics
+- **ConfigMaps** – Prometheus, Alertmanager & alert rules configuration
 - **Namespace** – All components are deployed under the `monitoring` namespace
 
 ---
 
 ##  Prerequisites
 
-Before deploying this monitoring stack, ensure the following are set up:
+Before deploying this monitoring stack, ensure the following:
 
-###  Kubernetes Cluster
+### Kubernetes Cluster
 
 - A running **Kubernetes cluster** (e.g., [MicroK8s](https://microk8s.io), Minikube, k3s, or cloud-managed K8s)
-- If using MicroK8s, enable these modules:
-  ```bash
-  microk8s enable dns storage
+- If using MicroK8s, enable required modules:
+
+```bash
+microk8s enable dns storage metallb:192.168.1.240-192.168.1.250
+````
+
+---
 
 ##  Directory Structure
 
 ```
-
-monitoring-manifests/
-├── alertmanager-configmap.yaml      # Alertmanager configuration (SMTP, routing, receivers)
-├── alertmanager.yaml                # Alertmanager Deployment and Service
-├── grafana.yaml                     # Grafana Deployment and Service
-├── namespace.yaml                   # Namespace definition for monitoring
-├── node-exporter.yaml               # Node Exporter DaemonSet
-├── prometheus-configmap.yaml        # Prometheus scrape config
-├── prometheus.yaml                  # Prometheus Deployment and Service
-
-````
+prometheus-grafana/
+├── alertmanager-configmap.yaml       # Alertmanager SMTP config
+├── alertmanager.yaml                 # Alertmanager Deployment & Service
+├── alert-rules-configmap.yaml        # Prometheus alerting rules
+├── grafana.yaml                      # Grafana Deployment & Service
+├── kube-state-metrics/               # Kube-State-Metrics deployment (cloned from GitHub)
+├── namespace.yaml                    # Namespace for monitoring components
+├── node-exporter.yaml                # Node Exporter DaemonSet
+├── prometheus-configmap.yaml         # Prometheus scrape & rule config
+├── prometheus.yaml                   # Prometheus Deployment & Service
+├── README.md                         # This file
+```
 
 ---
 
 ##  Installation Steps
 
-1. **Clone the repo (or move into the directory):**
+1. **Clone or enter the directory:**
 
 ```bash
-cd ~/monitoring-manifests
-````
+cd ~/prometheus-grafana
+```
 
-2. **Create the namespace:**
+2. **Create the `monitoring` namespace:**
 
 ```bash
 kubectl apply -f namespace.yaml
 ```
 
-3. **Apply all the manifests:**
+3. **Deploy `kube-state-metrics`:**
+
+```bash
+git clone https://github.com/kubernetes/kube-state-metrics
+cd kube-state-metrics
+git checkout v2.15.0
+kubectl apply -k examples/standard
+cd ..
+```
+
+4. **Apply all monitoring manifests:**
 
 ```bash
 kubectl apply -f .
@@ -64,7 +80,7 @@ kubectl apply -f .
 
 ##  Accessing Services via Port Forwarding
 
-Since Ingress or MetalLB is not used, you can expose services using port forwarding:
+If you are not using Ingress or a LoadBalancer:
 
 | Component    | Local Port | Command                                                                         |
 | ------------ | ---------- | ------------------------------------------------------------------------------- |
@@ -72,65 +88,49 @@ Since Ingress or MetalLB is not used, you can expose services using port forward
 | Alertmanager | `9093`     | `kubectl port-forward -n monitoring svc/alertmanager 9093:80 --address 0.0.0.0` |
 | Grafana      | `3000`     | `kubectl port-forward -n monitoring svc/grafana 3000:80 --address 0.0.0.0`      |
 
-> You can then access these UIs from your browser:
+> Access the UIs:
 >
-> * Prometheus: [http://\<VM\_PUBLIC\_IP>:9090](http://<VM_PUBLIC_IP>:9090)
-> * Alertmanager: [http://\<VM\_PUBLIC\_IP>:9093](http://<VM_PUBLIC_IP>:9093)
-> * Grafana: [http://\<VM\_PUBLIC\_IP>:3000](http://<VM_PUBLIC_IP>:3000)
+> * Prometheus: `http://<VM_PUBLIC_IP>:9090`
+> * Alertmanager: `http://<VM_PUBLIC_IP>:9093`
+> * Grafana: `http://<VM_PUBLIC_IP>:3000`
 
 ---
 
 ##  Grafana Login
 
 * **Username:** `admin`
-* **Password:** `admin` (change after first login)
+* **Password:** `admin` (please change after first login)
 
 ---
 
-##  Alertmanager SMTP
+## ✉ Alertmanager SMTP Setup
 
-Alertmanager is configured to send email alerts via Gmail. Check `alertmanager-configmap.yaml` for SMTP settings.
-
----
-
-Here’s a short and clear **README** for installing **Kube-State-Metrics** using Kubernetes manifest files:
+Email alerts are configured via Gmail SMTP in `alertmanager-configmap.yaml`.
 
 ---
 
-## Kube-State-Metrics Installation 
+##  Prometheus Alerts
 
-Install Kube-State-Metrics using official Kubernetes manifests via Kustomize:
+Prometheus alert rules are loaded from:
 
+* `alert-rules-configmap.yaml` → mounted into Prometheus
+* Example rules:
 
-
-1. **Clone the repository**
-
-   ```bash
-   git clone https://github.com/kubernetes/kube-state-metrics
-   cd kube-state-metrics
-   ```
-
-2. **Checkout latest stable release**
-
-   ```bash
-   git checkout v2.15.0
-   ```
-
-3. **Deploy to your cluster**
-
-   ```bash
-   kubectl apply -k examples/standard
-   ```
-
-### 📍 Notes
-
-* Targets the `kube-system` namespace by default.
-* Uses **Kustomize**, so you must use `kubectl apply -k` (not `-f`).
+  * Pending Pods
+  * Restarting containers
+  * High CPU/Memory (can be added)
 
 ---
 
-Let me know if you want a Markdown version with formatting for GitHub or docs.
+##  Prometheus Targets
 
+Scraped targets (defined in `prometheus-configmap.yaml`):
+
+* Prometheus (self)
+* Node Exporter
+* Kube-State-Metrics
+
+You can confirm them at: `Status → Targets` in Prometheus UI.
 
 ---
 
@@ -138,11 +138,12 @@ Let me know if you want a Markdown version with formatting for GitHub or docs.
 
 ```bash
 kubectl delete -f .
+kubectl delete -k kube-state-metrics/examples/standard
 ```
 
 ---
 
-## Author
+##  Author
 
 **Prayag Sangode**
 
